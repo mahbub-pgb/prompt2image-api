@@ -15,6 +15,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Prompt2ImageApi\API;
 use Prompt2ImageApi\Front;
+use Prompt2ImageApi\Admin;
 
 class Prompt2Image_Api {
 
@@ -26,7 +27,10 @@ class Prompt2Image_Api {
      * Initialize REST API class
      */
     public function load_class() {
-        
+            
+            if ( is_admin() ) {
+                new Admin();
+            }
             new API();      
             new Front();
            
