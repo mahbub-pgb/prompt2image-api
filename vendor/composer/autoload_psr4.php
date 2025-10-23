@@ -6,5 +6,5 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Prompt2ImageProxy\\' => array($baseDir . '/src'),
+    'Prompt2ImageApi\\' => array($baseDir . '/src'),
 );

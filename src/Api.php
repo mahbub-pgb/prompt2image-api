@@ -9,6 +9,7 @@ class API {
 	const ROUTE_NAMESPACE = 'prompt2image-api/v1';
 	const META_KEY_API    = '_prompt2image_api_key';
 	const META_KEY_USAGE  = '_prompt2image_usage_count';
+	// define( 'PROMPT2IMAGE_GEMINI_KEY', 'YOUR_GOOGLE_GEMINI_KEY' );
 
 	/**
 	 * Register REST API routes

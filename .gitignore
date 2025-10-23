@@ -1,0 +1,17 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+*.log
+
+# Composer
+/vendor/
+composer.lock
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
