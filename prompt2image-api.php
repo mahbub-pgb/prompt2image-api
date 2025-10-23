@@ -27,8 +27,7 @@ class Prompt2Image_Api {
      */
     public function load_class() {
         
-            $api = new API();
-            $api->register_routes();        
+            new API();      
             new Front();
            
         
