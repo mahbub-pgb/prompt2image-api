@@ -1,4 +1,5 @@
 <?php
+namespace Prompt2ImageApi;
 /**
  * Plugin Name: Prompt2Image Api
  * Description: Centralized Api system for Gemini API with user registration and API key management.
@@ -12,10 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Include Composer autoload
 require_once __DIR__ . '/vendor/autoload.php';
-
-use Prompt2ImageApi\API;
-use Prompt2ImageApi\Front;
-use Prompt2ImageApi\Admin;
 
 class Prompt2Image_Api {
 
