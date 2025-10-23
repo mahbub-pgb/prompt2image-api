@@ -14,19 +14,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Prompt2ImageApi\API;
+use Prompt2ImageApi\Front;
 
 class Prompt2Image_Api {
 
     public function __construct() {
-        add_action( 'rest_api_init', array( $this, 'init_api' ) );
+        add_action( 'init', array( $this, 'load_class' ) );
     }
 
     /**
      * Initialize REST API class
      */
-    public function init_api() {
-        $api = new API();
-        $api->register_routes();
+    public function load_class() {
+        
+            $api = new API();
+            $api->register_routes();        
+            new Front();
+           
+        
+        
     }
 }
 

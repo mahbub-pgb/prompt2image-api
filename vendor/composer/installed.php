@@ -3,7 +3,7 @@
         'name' => 'mahbub/prompt2image-api',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '96803d34527268dc1502809f76a45087fd544561',
+        'reference' => 'b365911fd59fc19e5fe5f74dc49caeb6863edd5b',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'mahbub/prompt2image-api' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '96803d34527268dc1502809f76a45087fd544561',
+            'reference' => 'b365911fd59fc19e5fe5f74dc49caeb6863edd5b',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

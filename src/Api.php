@@ -11,6 +11,10 @@ class API {
 	const META_KEY_USAGE  = '_prompt2image_usage_count';
 	// define( 'PROMPT2IMAGE_GEMINI_KEY', 'YOUR_GOOGLE_GEMINI_KEY' );
 
+	public function __construct() {
+        add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+    }
+
 	/**
 	 * Register REST API routes
 	 */
