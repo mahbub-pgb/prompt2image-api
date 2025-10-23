@@ -1,8 +1,9 @@
 <?php
 namespace Prompt2ImageApi;
+
 /**
  * Plugin Name: Prompt2Image Api
- * Description: Centralized Api system for Gemini API with user registration and API key management.
+ * Description: Centralized API system for Gemini API with user registration and API key management.
  * Version: 1.0.0
  * Author: Mahbub
  */
@@ -11,29 +12,55 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Include Composer autoload
+/**
+ * Define plugin constants
+ */
+if ( ! defined( 'P2I_API_VERSION' ) ) {
+    define( 'P2I_API_VERSION', '1.0.0' );
+}
+
+if ( ! defined( 'P2I_API_PLUGIN_FILE' ) ) {
+    define( 'P2I_API_PLUGIN_FILE', __FILE__ );
+}
+
+if ( ! defined( 'P2I_API_PLUGIN_BASENAME' ) ) {
+    define( 'P2I_API_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
+}
+
+if ( ! defined( 'P2I_API_PLUGIN_DIR' ) ) {
+    define( 'P2I_API_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+}
+
+if ( ! defined( 'P2I_API_PLUGIN_URL' ) ) {
+    define( 'P2I_API_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+}
+
+
+
+// Include Composer autoload (if exists)
 require_once __DIR__ . '/vendor/autoload.php';
 
+/**
+ * Main Plugin Class
+ */
 class Prompt2Image_Api {
 
     public function __construct() {
-        add_action( 'init', array( $this, 'load_class' ) );
+        add_action( 'init', [ $this, 'load_class' ] );
     }
 
     /**
-     * Initialize REST API class
+     * Initialize plugin components
      */
     public function load_class() {
-            
-            if ( is_admin() ) {
-                new Admin();
-            }
-            new API();      
-            new Front();
-           
-        
-        
+        if ( is_admin() ) {
+            new Admin();
+        }
+
+        new API();
+        new Front();
     }
 }
 
+// Initialize plugin
 new Prompt2Image_Api();

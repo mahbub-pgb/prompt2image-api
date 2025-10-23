@@ -6,9 +6,10 @@ use WP_Error;
 
 class API {
 
-	const ROUTE_NAMESPACE = 'prompt2image-api/v1';
-	const META_KEY_API    = '_prompt2image_api_key';
-	const META_KEY_USAGE  = '_prompt2image_usage_count';
+	const ROUTE_NAMESPACE 	= 'prompt2image-api/v1';
+	const META_KEY_API    	= '_prompt2image_api_key';
+	const META_KEY_USAGE  	= '_prompt2image_usage_count';
+	const META_STAUTS  		= '_prompt2image_user_status';
 	// define( 'PROMPT2IMAGE_GEMINI_KEY', 'YOUR_GOOGLE_GEMINI_KEY' );
 
 	public function __construct() {
@@ -29,11 +30,21 @@ class API {
 			]
 		);
 
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'/disconnect',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ $this, 'disconnect_user' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+
 		
 	}
 
 	/**
- * Register a new user and generate an API key.
+ 	 * Register a new user and generate an API key.
 	 *
 	 * @param WP_REST_Request $request The REST API request.
 	 *
@@ -88,6 +99,7 @@ class API {
 		// Generate and store API key.
 		$api_key = wp_generate_password( 32, false );
 		update_user_meta( $user_id, self::META_KEY_API, $api_key );
+		update_user_meta( $user_id, self::META_STAUTS, 1 );
 		update_user_meta( $user_id, self::META_KEY_USAGE, 0 );
 
 		return rest_ensure_response(
@@ -96,6 +108,46 @@ class API {
 				'api_key' => $api_key,
 			)
 		);
+	}
+
+	/**
+	 * REST API callback to disconnect user.
+	 *
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response
+	 */
+	public function disconnect_user( $request ) {
+	    // Get email from request and sanitize it
+	    $email = sanitize_email( $request->get_param( 'email' ) );
+
+
+
+	    if ( empty( $email ) || ! is_email( $email ) ) {
+	        return new \WP_REST_Response( [
+	            'success' => false,
+	            'message' => 'Invalid email address.',
+	        ], 400 );
+	    }
+
+	    // Get user by email
+	    $user = get_user_by( 'email', $email );
+
+	    if ( ! $user ) {
+	        return new \WP_REST_Response( [
+	            'success' => false,
+	            'message' => 'User not found with this email.',
+	        ], 404 );
+	    }
+
+	    // Delete the API key user meta
+	    update_user_meta( $user->ID, self::META_STAUTS, 0 );
+
+	    return new \WP_REST_Response( [
+	        'success' => true,
+	        'message' => 'Disconnected successfully. API key removed.',
+	        'user_id' => $user->ID,
+	        'email'   => $user->user_email,
+	    ], 200 );
 	}
 
 	
