@@ -73,6 +73,8 @@ class Admin {
             'meta_compare'=> 'EXISTS',
         ];
         $users = get_users( $args );
+
+        pri( count( $users ) );
         ?>
 
         <div class="prompt2image-admin-table-wrap">

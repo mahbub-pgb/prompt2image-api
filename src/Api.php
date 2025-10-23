@@ -147,6 +147,7 @@ class API {
 	        'message' => 'Disconnected successfully. API key removed.',
 	        'user_id' => $user->ID,
 	        'email'   => $user->user_email,
+	        'status'  => 'success',
 	    ], 200 );
 	}
 
