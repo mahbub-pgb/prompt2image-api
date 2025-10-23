@@ -1,0 +1,14 @@
+{
+    "name": "mahbub/prompt2image-api",
+    "description": "Prompt2Image api plugin with Composer autoload",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "Prompt2ImageApi\\": "src/"
+        },
+        "files": [
+            "functions.php"
+        ]
+    },
+    "require": {}
+}
