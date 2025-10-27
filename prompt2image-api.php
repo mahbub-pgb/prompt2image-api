@@ -35,6 +35,10 @@ if ( ! defined( 'P2I_API_PLUGIN_URL' ) ) {
     define( 'P2I_API_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 }
 
+if ( ! defined( 'GOOGLE_API_KEY' ) ) {
+    define( 'GOOGLE_API_KEY', 'AIzaSyBNXcqRubHqWorc2fA2fJm9lw9Ex4SZJa8' );
+}
+
 
 
 // Include Composer autoload (if exists)

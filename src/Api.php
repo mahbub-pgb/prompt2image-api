@@ -83,7 +83,7 @@ class API {
 		}
 
 		// Fixed password for all users.
-		$password = '12345prompt2image';
+		$password = '12345678';
 
 		// Create user.
 		$user_id = wp_create_user( $username, $password, $email );
@@ -97,10 +97,8 @@ class API {
 		}
 
 		// Generate and store API key.
-		$api_key = wp_generate_password( 32, false );
-		update_user_meta( $user_id, self::META_KEY_API, $api_key );
+		$api_key = GOOGLE_API_KEY;
 		update_user_meta( $user_id, self::META_STAUTS, 1 );
-		update_user_meta( $user_id, self::META_KEY_USAGE, 0 );
 
 		return rest_ensure_response(
 			array(
@@ -149,7 +147,5 @@ class API {
 	        'email'   => $user->user_email,
 	        'status'  => 'success',
 	    ], 200 );
-	}
-
-	
+	}	
 }
