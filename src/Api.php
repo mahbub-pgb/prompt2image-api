@@ -53,6 +53,7 @@ class API {
 	public function register_user( WP_REST_Request $request ) {
 		$email    = sanitize_email( $request->get_param( 'email' ) );
 		$username = sanitize_user( $request->get_param( 'username' ), true );
+		$api_key = GOOGLE_API_KEY;
 
 		if ( empty( $email ) || empty( $username ) ) {
 			return new WP_Error(
@@ -73,7 +74,6 @@ class API {
 		// Check if user already exists.
 		$user = get_user_by( 'email', $email );
 		if ( $user ) {
-			$api_key = get_user_meta( $user->ID, self::META_KEY_API, true );
 			return rest_ensure_response(
 				array(
 					'message' => esc_html__( 'User already registered.', 'prompt2image-api' ),
@@ -95,9 +95,6 @@ class API {
 				array( 'status' => 500 )
 			);
 		}
-
-		// Generate and store API key.
-		$api_key = GOOGLE_API_KEY;
 		update_user_meta( $user_id, self::META_STAUTS, 1 );
 
 		return rest_ensure_response(
@@ -117,8 +114,6 @@ class API {
 	public function disconnect_user( $request ) {
 	    // Get email from request and sanitize it
 	    $email = sanitize_email( $request->get_param( 'email' ) );
-
-
 
 	    if ( empty( $email ) || ! is_email( $email ) ) {
 	        return new \WP_REST_Response( [
