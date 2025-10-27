@@ -69,7 +69,7 @@ class Admin {
 
         // Get all users with API key
         $args  = [
-            'meta_key'    => '_prompt2image_api_key',
+            'meta_key'    => '_prompt2image_user_status',
             'meta_compare'=> 'EXISTS',
         ];
         $users = get_users( $args );
