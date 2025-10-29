@@ -77,70 +77,73 @@ class API {
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function register_user( WP_REST_Request $request ) {
+	public function register_user( \WP_REST_Request $request ) {
 
-		$email    = sanitize_email( $request->get_param( 'email' ) );
-		$username = sanitize_user( $request->get_param( 'username' ), true );
+	    $email     = sanitize_email( $request->get_param( 'email' ) );
+	    $username  = sanitize_user( $request->get_param( 'username' ), true );
+	    $site_name = sanitize_text_field( $request->get_param( 'site_name' ) );
 
-		if ( empty( $email ) || empty( $username ) ) {
-			return new WP_Error(
-				'missing_fields',
-				esc_html__( 'Email and username are required.', 'prompt2image-api' ),
-				[ 'status' => 400 ]
-			);
-		}
+	    if ( empty( $email ) || empty( $username ) ) {
+	        return new \WP_Error(
+	            'missing_fields',
+	            esc_html__( 'Email and username are required.', 'prompt2image-api' ),
+	            [ 'status' => 400 ]
+	        );
+	    }
 
-		if ( ! is_email( $email ) ) {
-			return new WP_Error(
-				'invalid_email',
-				esc_html__( 'Invalid email address.', 'prompt2image-api' ),
-				[ 'status' => 400 ]
-			);
-		}
+	    if ( ! is_email( $email ) ) {
+	        return new \WP_Error(
+	            'invalid_email',
+	            esc_html__( 'Invalid email address.', 'prompt2image-api' ),
+	            [ 'status' => 400 ]
+	        );
+	    }
 
-		// Check if user already exists.
-		$user = get_user_by( 'email', $email );
+	    $user = get_user_by( 'email', $email );
 
-		if ( $user instanceof \WP_User ) {
-			// If exists, generate a new API key anyway.
-			$api_key = $this->generate_api_key();
-			update_user_meta( $user->ID, self::META_KEY_API, $api_key );
-			update_user_meta( $user->ID, self::META_STATUS, 1 );
+	    if ( $user instanceof \WP_User ) {
+	        $api_key = p2i_generate_api_key(); // ✅ call class method
+	        update_user_meta( $user->ID, self::META_KEY_API, $api_key );
+	        update_user_meta( $user->ID, self::META_STATUS, 1 );
 
-			return rest_ensure_response(
-				[
-					'message' => esc_html__( 'User already registered.', 'prompt2image-api' ),
-					'api_key' => $api_key,
-				]
-			);
-		}
+	        if ( ! empty( $site_name ) ) {
+	            update_user_meta( $user->ID, 'prompt2image_site_name', $site_name );
+	        }
 
-		// Generate a random password for new user.
-		$password = wp_generate_password( 12, false );
+	        return rest_ensure_response( [
+	            'message'   => esc_html__( 'User already registered.', 'prompt2image-api' ),
+	            'api_key'   => $api_key,
+	            'site_name' => $site_name,
+	        ] );
+	    }
 
-		// Create user.
-		$user_id = wp_create_user( $username, $password, $email );
+	    $password = wp_generate_password( 12, false );
+	    $user_id = wp_create_user( $username, $password, $email );
 
-		if ( is_wp_error( $user_id ) ) {
-			return new WP_Error(
-				'user_create_failed',
-				esc_html__( 'Failed to create user.', 'prompt2image-api' ),
-				[ 'status' => 500 ]
-			);
-		}
+	    if ( is_wp_error( $user_id ) ) {
+	        return new \WP_Error(
+	            'user_create_failed',
+	            esc_html__( 'Failed to create user.', 'prompt2image-api' ),
+	            [ 'status' => 500 ]
+	        );
+	    }
 
-		// Generate random API key and save in user meta.
-		$api_key = p2i_generate_api_key();
-		update_user_meta( $user_id, self::META_KEY_API, $api_key );
-		update_user_meta( $user_id, self::META_STATUS, 1 );
+	    $api_key = 'p2i_generate_api_key()'; // ✅ call method properly
+	    update_user_meta( $user_id, self::META_KEY_API, $api_key );
+	    update_user_meta( $user_id, self::META_STATUS, 1 );
 
-		return rest_ensure_response(
-			[
-				'message' => esc_html__( 'User registered successfully.', 'prompt2image-api' ),
-				'api_key' => $api_key,
-			]
-		);
+	    if ( ! empty( $site_name ) ) {
+	        update_user_meta( $user_id, 'prompt2image_site_name', $site_name );
+	    }
+
+	    return rest_ensure_response( [
+	        'message'   => esc_html__( 'User registered successfully.', 'prompt2image-api' ),
+	        'api_key'   => $api_key,
+	        'site_name' => $site_name,
+	    ] );
 	}
+
+
 
 	/**
 	 * Disconnect user by setting status to inactive.
