@@ -25,6 +25,6 @@ class Front {
      * Print "Hi" in the head.
      */
     public function front() {
-    	
+    	// p2i_print_r( p2i_generate_api_key() );
     }
 }
