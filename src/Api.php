@@ -226,63 +226,99 @@ class API {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function process_user_prompt( \WP_REST_Request $request ) {
+	    $api_key = sanitize_text_field( $request->get_param( 'api_key' ) );
+	    $prompt  = sanitize_text_field( $request->get_param( 'prompt' ) );
 
-        $api_key = sanitize_text_field( $request->get_param( 'api_key' ) );
-        $prompt  = sanitize_text_field( $request->get_param( 'prompt' ) );
+	    // Verify API key
+	    $user_id = p2i_verify_user_by_api_key( $api_key );
+	    if ( ! $user_id ) {
+	        return new \WP_Error(
+	            'invalid_api_key',
+	            __( 'Invalid API key.', 'prompt2image-api' ),
+	            [ 'status' => 401 ]
+	        );
+	    }
 
-        // Verify API key
-        $user_id = p2i_verify_user_by_api_key( $api_key );
+	    if ( empty( $prompt ) ) {
+	        return new \WP_Error(
+	            'missing_prompt',
+	            __( 'Prompt is required.', 'prompt2image-api' ),
+	            [ 'status' => 400 ]
+	        );
+	    }
 
-        if ( ! $user_id ) {
-            return new \WP_Error(
-                'invalid_api_key',
-                __( 'Invalid API key.', 'prompt2image-api' ),
-                [ 'status' => 401 ]
-            );
-        }
+	    // Gemini Image API endpoint
+	    $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent';
 
-        if ( empty( $prompt ) ) {
-            return new \WP_Error(
-                'missing_prompt',
-                __( 'Prompt is required.', 'prompt2image-api' ),
-                [ 'status' => 400 ]
-            );
-        }
+	    // Prepare request body
+	    $body = [
+	        'contents' => [
+	            [
+	                'parts' => [
+	                    ['text' => $prompt],
+	                ],
+	            ],
+	        ],
+	    ];
 
-        
+	    // Send request
+	    $response = wp_remote_post(
+	        $url,
+	        [
+	            'headers' => [
+	                'Content-Type'  => 'application/json',
+	                'x-goog-api-key' => GOOGLE_API_KEY, // use API key header
+	            ],
+	            'body'    => wp_json_encode( $body ),
+	            'timeout' => 120,
+	        ]
+	    );
 
-        return rest_ensure_response([
-            'success' => true,
-            'user_id' => $user_id,
-            'prompt'  => $prompt,
-            'result'  => $processed_output,
-        ]);
-    }
+	    if ( is_wp_error( $response ) ) {
+	        return new \WP_Error(
+	            'api_error',
+	            $response->get_error_message(),
+	            [ 'status' => 500 ]
+	        );
+	    }
+
+	    $data = json_decode( wp_remote_retrieve_body( $response ), true );
+ 
+	    wp_send_json_success( $data );
+	    return;
+
+	    // Gemini returns base64 image(s) in $data['results'][0]['content'][0]['image']['b64']
+	    $image_base64 = $data['results'][0]['content'][0]['image']['b64'] ?? null;
+
+	    if ( ! $image_base64 ) {
+	        return new \WP_Error(
+	            'no_image',
+	            __( 'No image returned from Gemini.', 'prompt2image-api' ),
+	            [ 'status' => 500 ]
+	        );
+	    }
+
+	    // Decode base64 to binary
+	    $image_data = base64_decode( $image_base64 );
+
+	    // Optional: save image to uploads
+	    $upload_dir = wp_upload_dir();
+	    $file_name  = 'gemini-image-' . time() . '.png';
+	    $file_path  = $upload_dir['path'] . '/' . $file_name;
+	    file_put_contents( $file_path, $image_data );
+
+	    $image_url = $upload_dir['url'] . '/' . $file_name;
+
+	    return rest_ensure_response([
+	        'success' => true,
+	        'user_id' => $user_id,
+	        'prompt'  => $prompt,
+	        'image'   => $image_url,
+	    ]);
+	}
+
+
+
 
 }
-// Prepare request body.
-        // $body = [
-        //     'contents'         => [
-        //         [
-        //             'parts' => [
-        //                 [ 'text' => $prompt ],
-        //             ],
-        //         ],
-        //     ],
-        //     'generationConfig' => [
-        //         'responseModalities' => [ 'TEXT', 'IMAGE' ],
-        //     ],
-        // ];
-
-        // // Send request to Google Gemini API.
-        // $response = wp_remote_post(
-        //     $url,
-        //     [
-        //         'headers' => [
-        //             'Content-Type'   => 'application/json',
-        //             'X-goog-api-key' => $api_key,
-        //         ],
-        //         'body'    => wp_json_encode( $body ),
-        //         'timeout' => 120,
-        //     ]
-        // );
+	
