@@ -83,6 +83,7 @@ class API {
 	    $username  = sanitize_user( $request->get_param( 'username' ), true );
 	    $site_name = sanitize_text_field( $request->get_param( 'site_name' ) );
 
+	    // Validate required fields
 	    if ( empty( $email ) || empty( $username ) ) {
 	        return new \WP_Error(
 	            'missing_fields',
@@ -99,13 +100,20 @@ class API {
 	        );
 	    }
 
+	    // Check if user already exists
 	    $user = get_user_by( 'email', $email );
 
 	    if ( $user instanceof \WP_User ) {
-	        $api_key = p2i_generate_api_key(); // ✅ call class method
-	        update_user_meta( $user->ID, self::META_KEY_API, $api_key );
-	        update_user_meta( $user->ID, self::META_STATUS, 1 );
+	        // ✅ Existing user: return API key from database
+	        $api_key = get_user_meta( $user->ID, self::META_KEY_API, true );
 
+	        // If somehow no API key exists, generate one
+	        if ( empty( $api_key ) ) {
+	            $api_key = $this->generate_api_key();
+	            update_user_meta( $user->ID, self::META_KEY_API, $api_key );
+	        }
+
+	        // Save site name if provided
 	        if ( ! empty( $site_name ) ) {
 	            update_user_meta( $user->ID, 'prompt2image_site_name', $site_name );
 	        }
@@ -117,8 +125,9 @@ class API {
 	        ] );
 	    }
 
+	    // New user: create account
 	    $password = wp_generate_password( 12, false );
-	    $user_id = wp_create_user( $username, $password, $email );
+	    $user_id  = wp_create_user( $username, $password, $email );
 
 	    if ( is_wp_error( $user_id ) ) {
 	        return new \WP_Error(
@@ -128,10 +137,12 @@ class API {
 	        );
 	    }
 
-	    $api_key = 'p2i_generate_api_key()'; // ✅ call method properly
+	    // Generate API key for new user
+	    $api_key = p2i_generate_api_key();
 	    update_user_meta( $user_id, self::META_KEY_API, $api_key );
 	    update_user_meta( $user_id, self::META_STATUS, 1 );
 
+	    // Save site name if provided
 	    if ( ! empty( $site_name ) ) {
 	        update_user_meta( $user_id, 'prompt2image_site_name', $site_name );
 	    }
