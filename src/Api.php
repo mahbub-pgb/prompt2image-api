@@ -68,6 +68,16 @@ class API {
 				'permission_callback' => '__return_true',
 			]
 		);
+
+		register_rest_route(
+        self::ROUTE_NAMESPACE,
+	        '/process-prompt', 
+	        [
+	            'methods'             => 'POST',
+	            'callback'            => [ $this , 'process_user_prompt' ], 
+	            'permission_callback' => '__return_true', 
+	        ]
+	    );
 	}
 
 	/**
@@ -106,10 +116,11 @@ class API {
 	    if ( $user instanceof \WP_User ) {
 	        // ✅ Existing user: return API key from database
 	        $api_key = get_user_meta( $user->ID, self::META_KEY_API, true );
+			update_user_meta( $user->ID, self::META_STATUS, 1 );
 
 	        // If somehow no API key exists, generate one
 	        if ( empty( $api_key ) ) {
-	            $api_key = $this->generate_api_key();
+	            $api_key = p2i_generate_api_key();
 	            update_user_meta( $user->ID, self::META_KEY_API, $api_key );
 	        }
 
@@ -153,8 +164,6 @@ class API {
 	        'site_name' => $site_name,
 	    ] );
 	}
-
-
 
 	/**
 	 * Disconnect user by setting status to inactive.
@@ -202,4 +211,71 @@ class API {
 			200
 		);
 	}
+
+	/**
+	 * Process user prompt
+	 *
+	 * @param WP_REST_Request $request
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function process_user_prompt( \WP_REST_Request $request ) {
+
+        $api_key = sanitize_text_field( $request->get_param( 'api_key' ) );
+        $prompt  = sanitize_text_field( $request->get_param( 'prompt' ) );
+
+        // Verify API key
+        $user_id = p2i_verify_user_by_api_key( $api_key );
+
+        if ( ! $user_id ) {
+            return new \WP_Error(
+                'invalid_api_key',
+                __( 'Invalid API key.', 'prompt2image-api' ),
+                [ 'status' => 401 ]
+            );
+        }
+
+        if ( empty( $prompt ) ) {
+            return new \WP_Error(
+                'missing_prompt',
+                __( 'Prompt is required.', 'prompt2image-api' ),
+                [ 'status' => 400 ]
+            );
+        }
+
+        
+
+        return rest_ensure_response([
+            'success' => true,
+            'user_id' => $user_id,
+            'prompt'  => $prompt,
+            'result'  => $processed_output,
+        ]);
+    }
+
 }
+// Prepare request body.
+        // $body = [
+        //     'contents'         => [
+        //         [
+        //             'parts' => [
+        //                 [ 'text' => $prompt ],
+        //             ],
+        //         ],
+        //     ],
+        //     'generationConfig' => [
+        //         'responseModalities' => [ 'TEXT', 'IMAGE' ],
+        //     ],
+        // ];
+
+        // // Send request to Google Gemini API.
+        // $response = wp_remote_post(
+        //     $url,
+        //     [
+        //         'headers' => [
+        //             'Content-Type'   => 'application/json',
+        //             'X-goog-api-key' => $api_key,
+        //         ],
+        //         'body'    => wp_json_encode( $body ),
+        //         'timeout' => 120,
+        //     ]
+        // );
