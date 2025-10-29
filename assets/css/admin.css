@@ -133,3 +133,27 @@
         font-size: 13px;
     }
 }
+
+
+.prompt2image-tabs {
+    margin-bottom: 15px;
+}
+.prompt2image-tabs .tab-button {
+    background: #f1f1f1;
+    border: 1px solid #ccc;
+    padding: 8px 15px;
+    margin-right: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.prompt2image-tabs .tab-button.active {
+    background: #0073aa;
+    color: #fff;
+}
+.tab-content {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 6px;
+}
