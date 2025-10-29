@@ -134,7 +134,17 @@
     }
 }
 
+/* Hide everything until JS finishes */
+.prompt2image-admin-wrap.is-loading .tab-content {
+    display: none !important;
+}
 
+/* Hide all tab contents by default */
+.tab-content {
+    display: none;
+}
+
+/* Tab button styling */
 .prompt2image-tabs {
     margin-bottom: 15px;
 }
@@ -151,7 +161,10 @@
     background: #0073aa;
     color: #fff;
 }
-.tab-content {
+
+/* Show the active tab */
+.tab-content.active {
+    display: block !important;
     background: #fff;
     border: 1px solid #ddd;
     padding: 15px;

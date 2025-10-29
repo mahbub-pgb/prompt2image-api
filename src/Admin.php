@@ -56,6 +56,9 @@ class Admin {
      */
     public function p2i_register_admin_menu() {
 
+        register_setting( 'prompt2image_settings_group', 'p2i_api_endpoint' );
+        register_setting( 'prompt2image_settings_group', 'p2i_enable_logging' );
+
         // Main menu - Users
         add_menu_page(
             esc_html__( 'Prompt2Image Users', 'prompt2image-api' ), // Page title
@@ -90,12 +93,12 @@ class Admin {
 
         <!-- Tabs -->
         <div class="prompt2image-tabs">
-            <button class="tab-button active" data-tab="users"><?php esc_html_e('Users', 'prompt2image-api'); ?></button>
-            <button class="tab-button" data-tab="settings"><?php esc_html_e('Settings', 'prompt2image-api'); ?></button>
+            <button class="tab-button " data-tab="users">Users</button>
+            <button class="tab-button" data-tab="settings">Settings</button>
         </div>
 
         <!-- USERS TAB -->
-        <div class="tab-content tab-users active">
+        <div class="tab-content tab-users">
             <table id="prompt2image-users-table" class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -122,7 +125,7 @@ class Admin {
         </div>
 
         <!-- SETTINGS TAB -->
-        <div class="tab-content tab-settings" style="display:none;">
+        <div class="tab-content tab-settings">
             <form method="post" action="options.php">
                 <?php
                 settings_fields( 'prompt2image_settings_group' );
