@@ -26,6 +26,6 @@ class Front {
      */
     public function front() {
         
-        p2i_print_r(  GOOGLE_API_KEY );
+        // p2i_print_r(  GOOGLE_API_KEY );
     }
 }

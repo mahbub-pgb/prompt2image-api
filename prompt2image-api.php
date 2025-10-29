@@ -36,7 +36,7 @@ if ( ! defined( 'P2I_API_PLUGIN_URL' ) ) {
 }
 
 if ( ! defined( 'GOOGLE_API_KEY' ) ) {
-    define( 'GOOGLE_API_KEY', 'AIzaSyDADqK1OE6myPXHAQVmYeJd3R9L_OLIcWI' );
+    define( 'GOOGLE_API_KEY', 'AIzaSyBYVT4q9r_gi9v8OnNMwXuW5oj-S_SfTBQ' );
 }
 
 
