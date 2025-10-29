@@ -37,6 +37,10 @@ class API {
 	public const META_STATUS = '_prompt2image_user_status';
 
 	/**
+	 * User meta Limit 	 */
+	public const META_LIMIT = '_prompt2image_user_limit';
+
+	/**
 	 * Constructor.
 	 *
 	 * Hooks REST API routes.
@@ -93,6 +97,8 @@ class API {
 	    $username  = sanitize_user( $request->get_param( 'username' ), true );
 	    $site_name = sanitize_text_field( $request->get_param( 'site_name' ) );
 
+	    $limit 	= get_option( 'prompt2image_request_limit', 10 );
+
 	    // Validate required fields
 	    if ( empty( $email ) || empty( $username ) ) {
 	        return new \WP_Error(
@@ -117,22 +123,18 @@ class API {
 	        // ✅ Existing user: return API key from database
 	        $api_key = get_user_meta( $user->ID, self::META_KEY_API, true );
 			update_user_meta( $user->ID, self::META_STATUS, 1 );
+			$reamining_limit = get_user_meta( $user->ID, self::META_LIMIT );
 
 	        // If somehow no API key exists, generate one
 	        if ( empty( $api_key ) ) {
 	            $api_key = p2i_generate_api_key();
 	            update_user_meta( $user->ID, self::META_KEY_API, $api_key );
-	        }
-
-	        // Save site name if provided
-	        if ( ! empty( $site_name ) ) {
-	            update_user_meta( $user->ID, 'prompt2image_site_name', $site_name );
-	        }
+	        }	        
 
 	        return rest_ensure_response( [
 	            'message'   => esc_html__( 'User already registered.', 'prompt2image-api' ),
 	            'api_key'   => $api_key,
-	            'site_name' => $site_name,
+	            'reamining_limit' => $reamining_limit,
 	        ] );
 	    }
 
@@ -152,6 +154,7 @@ class API {
 	    $api_key = p2i_generate_api_key();
 	    update_user_meta( $user_id, self::META_KEY_API, $api_key );
 	    update_user_meta( $user_id, self::META_STATUS, 1 );
+	    update_user_meta( $user_id, self::META_LIMIT, $limit );
 
 	    // Save site name if provided
 	    if ( ! empty( $site_name ) ) {
@@ -162,6 +165,7 @@ class API {
 	        'message'   => esc_html__( 'User registered successfully.', 'prompt2image-api' ),
 	        'api_key'   => $api_key,
 	        'site_name' => $site_name,
+	        'limit' 	=> $limit,
 	    ] );
 	}
 
