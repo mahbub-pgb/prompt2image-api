@@ -25,6 +25,10 @@ class Front {
      * Print "Hi" in the head.
      */
     public function front() {
-    	// p2i_print_r( p2i_generate_api_key() );
+        $remaining_limit = get_user_meta( 1, '_prompt2image_user_limit', true );
+
+        echo '<pre>';
+        print_r( $remaining_limit );
+        echo '</pre>';
     }
 }

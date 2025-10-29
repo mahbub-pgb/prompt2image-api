@@ -120,23 +120,26 @@ class API {
 	    $user = get_user_by( 'email', $email );
 
 	    if ( $user instanceof \WP_User ) {
-	        // ✅ Existing user: return API key from database
-	        $api_key = get_user_meta( $user->ID, self::META_KEY_API, true );
-			update_user_meta( $user->ID, self::META_STATUS, 1 );
-			$reamining_limit = get_user_meta( $user->ID, self::META_LIMIT );
+		    // Existing user: return API key from database
+		    $api_key = get_user_meta( $user->ID, self::META_KEY_API, true );
+		    update_user_meta( $user->ID, self::META_STATUS, 1 );
 
-	        // If somehow no API key exists, generate one
-	        if ( empty( $api_key ) ) {
-	            $api_key = p2i_generate_api_key();
-	            update_user_meta( $user->ID, self::META_KEY_API, $api_key );
-	        }	        
+		    // Set or reset limit for existing user
+		    update_user_meta( $user->ID, self::META_LIMIT, $limit );
+		    $remaining_limit = get_user_meta( $user->ID, self::META_LIMIT, true );
 
-	        return rest_ensure_response( [
-	            'message'   => esc_html__( 'User already registered.', 'prompt2image-api' ),
-	            'api_key'   => $api_key,
-	            'reamining_limit' => $reamining_limit,
-	        ] );
-	    }
+		    // If no API key exists, generate one
+		    if ( empty( $api_key ) ) {
+		        $api_key = p2i_generate_api_key();
+		        update_user_meta( $user->ID, self::META_KEY_API, $api_key );
+		    }
+
+		    return rest_ensure_response( [
+		        'message' => esc_html__( 'User already registered.', 'prompt2image-api' ),
+		        'api_key' => $api_key,
+		        'limit'   => $remaining_limit,
+		    ] );
+		}
 
 	    // New user: create account
 	    $password = wp_generate_password( 12, false );
